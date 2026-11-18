@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagina - JDEconomy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+:root {
+    --color-primary: #6B1E2A;
+    --color-primary-dark: #4A1520;
+    --color-primary-light: #8B2E3C;
+    --color-primary-gradient: linear-gradient(135deg, #6B1E2A 0%, #4A1520 100%);
+    --color-bg: #FAF7F7;
+    --color-surface: #FFFFFF;
+    --color-text-main: #1A1A1A;
+    --color-text-secondary: #5C5C5C;
+    --color-borders: #E8E0E0;
+    --radius-sm: 0.375rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.08);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+    --transition-base: 0.3s ease;
+}
+[data-theme="dark"] {
+    --color-primary: #C45C6A;
+    --color-primary-dark: #A34452;
+    --color-primary-light: #E07A88;
+    --color-bg: #121212;
+    --color-surface: #1E1E1E;
+    --color-text-main: #F5F5F5;
+    --color-text-secondary: #B0B0B0;
+    --color-borders: #333333;
+    --color-primary-gradient: linear-gradient(135deg, #C45C6A 0%, #A34452 100%);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+    background-color: var(--color-bg);
+    color: var(--color-text-main);
+    line-height: 1.6;
+    transition: background-color var(--transition-base), color var(--transition-base);
+}
+.header {
+    background-color: var(--color-surface);
+    border-bottom: 1px solid var(--color-borders);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+.header-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0.85rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    color: var(--color-primary);
+    font-weight: 700;
+    font-size: 1.25rem;
+}
+.logo-mark {
+    width: 36px;
+    height: 36px;
+    background: var(--color-primary-gradient);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 800;
+}
+.nav-menu {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.nav-link {
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.95rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+.nav-link:hover, .nav-link.active {
+    color: var(--color-primary);
+    background-color: rgba(107, 30, 42, 0.08);
+}
+.theme-toggle {
+    background: none;
+    border: 1px solid var(--color-borders);
+    border-radius: 8px;
+    width: 38px;
+    height: 38px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-main);
+}
+main {
+    min-height: 70vh;
+}
+footer {
+    background-color: var(--color-surface);
+    border-top: 1px solid var(--color-borders);
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+    margin-top: 3rem;
+    color: var(--color-text-secondary);
+}
+footer .footer-logo {
+    font-weight: 700;
+    color: var(--color-primary);
+    margin-bottom: 0.5rem;
+}
+:root {n  --color-primary: #6B1E2A;n  --color-light-bg: #FAF7F7;n  --color-dark-bg: #121212;n  --color-text-light: #FFFFFF;n  --color-text-dark: #000000;n  --font-family-moderna: 'Plus Jakarta Sans', sans-serif;n  --font-size-base: 1rem;n  --font-size-lg: 1.25rem;n  --font-size-sm: 0.875rem;n  --line-height-base: 1.5;n  --line-height-lg: 1.75;n  --line-height-sm: 1.25;n  --spacing-base: 1rem;n  --spacing-lg: 2rem;n  --spacing-sm: 0.5rem;n}nn[data-theme='light'] {n  background-color: var(--color-light-bg);n  color: var(--color-text-dark);n}nn[data-theme='dark'] {n  background-color: var(--color-dark-bg);n  color: var(--color-text-light);n}nn.hero-guindo {n  text-align: center;n  padding: calc(var(--spacing-lg) * 2) var(--spacing-base);n  background: linear-gradient(135deg, var(--color-primary), #9C27B0);n  color: var(--color-light-bg);n}nn.hero-guindo h1 {n  font-size: var(--font-size-lg);n  margin-bottom: var(--spacing-base);n}nn.hero-guindo p {n  font-size: var(--font-size-base);n  margin-bottom: var(--spacing-lg);n}nn.cta-button-guindo {n  display: inline-block;n  padding: var(--spacing-base) var(--spacing-lg);n  background-color: var(--color-light-bg);n  color: var(--color-primary);n  border: none;n  border-radius: var(--spacing-sm);n  text-decoration: none;n  transition: background-color 0.3s ease, transform 0.3s ease;n}nn.cta-button-guindo:hover {n  background-color: var(--color-text-light);n  transform: translateY(-2px);n}nn.description {n  padding: var(--spacing-lg) var(--spacing-base);n  text-align: center;n}nn.description h2 {n  font-size: var(--font-size-lg);n  margin-bottom: var(--spacing-base);n}nn.description p {n  font-size: var(--font-size-base);n  max-width: 800px;n  margin: 0 auto;n}nn.features {n  padding: var(--spacing-lg) var(--spacing-base);n  text-align: center;n}nn.features h2 {n  font-size: var(--font-size-lg);n  margin-bottom: var(--spacing-lg);n}nn.feature-item-guindo {n  display: inline-block;n  width: calc(33.333% - var(--spacing-base));n  margin: var(--spacing-base);n  padding: var(--spacing-lg);n  background-color: rgba(255, 255, 255, 0.1);n  border-radius: var(--spacing-sm);n  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);n  transition: background-color 0.3s ease, transform 0.3s ease;n}nn.feature-item-guindo:hover {n  background-color: rgba(255, 255, 255, 0.2);n  transform: translateY(-2px);n}nn.feature-item-guindo i {n  font-size: var(--font-size-lg);n  color: var(--color-primary);n  margin-bottom: var(--spacing-base);n}nn.feature-item-guindo h3 {n  font-size: var(--font-size-base);n  margin-bottom: var(--spacing-sm);n}nn.testimonials {n  padding: var(--spacing-lg) var(--spacing-base);n  text-align: center;n}nn.testimonials h2 {n  font-size: var(--font-size-lg);n  margin-bottom: var(--spacing-lg);n}nn.testimonial-item-guindo {n  margin: var(--spacing-lg) 0;n  padding: var(--spacing-lg);n  background-color: rgba(255, 255, 255, 0.1);n  border-radius: var(--spacing-sm);n  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);n  transition: background-color 0.3s ease, transform 0.3s ease;n}nn.testimonial-item-guindo:hover {n  background-color: rgba(255, 255, 255, 0.2);n  transform: translateY(-2px);n}nn.testimonial-item-guindo blockquote {n  font-size: var(--font-size-base);n  margin-bottom: var(--spacing-base);n}nn.testimonial-item-guindo cite {n  font-size: var(--font-size-sm);n  color: var(--color-primary);n}nn.cta-guindo {n  padding: var(--spacing-lg) var(--spacing-base);n  text-align: center;n  background: linear-gradient(135deg, var(--color-primary), #9C27B0);n  color: var(--color-light-bg);n}nn.cta-guindo h2 {n  font-size: var(--font-size-lg);n  margin-bottom: var(--spacing-base);n}nn.cta-guindo p {n  font-size: var(--font-size-base);n  margin-bottom: var(--spacing-lg);n}nn@media (max-width: 768px) {n  .feature-item-guindo {n    width: calc(50% - var(--spacing-base));n  }n}nn@media (max-width: 480px) {n  .feature-item-guindo {n    width: 100%;n  }n}
+    </style>
+</head>
+<body>
+    <header class="header generated-menu">
+        <div class="header-inner">
+            <a href="/jdeconomy/" class="logo">
+                <div class="logo-mark">JD</div>
+                <div class="logo-text">JDEconomy <span style="font-weight:400; font-size:0.85rem; opacity:0.7;">Academia</span></div>
+            </a>
+            <nav class="nav-menu">
+                <a href="/jdeconomy/" class="nav-link">Inicio</a><a href="/jdeconomy/cursos/" class="nav-link">Cursos</a><a href="/jdeconomy/macroeconomia/" class="nav-link active">MacroeconomÃ­a</a><a href="/jdeconomy/ofimatica/" class="nav-link">OfimÃ¡tica</a><a href="/jdeconomy/nosotros/" class="nav-link">Nosotros</a><a href="/jdeconomy/contacto/" class="nav-link">Contacto</a><a href="/jdeconomy/ai-work/" class="nav-link">AI Work</a>
+            </nav>
+            <nav class="nav-actions">
+                <button class="theme-toggle" aria-label="Cambiar tema">
+                    <span class="theme-icon">☀️</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+<section id="hero" class="hero hero-guindo">n  <h1>Maximice su crecimiento financiero</h1>n  <p>Nuestra consultoría financiera le ayudará a tomar decisiones informadas y a alcanzar sus objetivos</p>n  <a href="#" class="cta-button cta-button-guindo">Descubre cómo podemos ayudarle</a>n</section>n<section id="description" class="description">n  <h2>Nuestra Misión</h2>n  <p>En nuestra consultoría financiera, nos comprometemos a brindar servicios de alta calidad para ayudar a nuestros clientes a alcanzar sus objetivos financieros. Nuestro equipo de expertos está dedicado a proporcionar asesoría personalizada y soluciones innovadoras para satisfacer las necesidades de nuestros clientes.</p>n</section>n<section id="features" class="features">n  <h2>Nuestros Servicios</h2>n  <div class="feature-item feature-item-guindo">n    <i class="fas fa-calculator"></i>n    <h3>Asesoría Tributaria</h3>n    <p>Nuestros expertos en impuestos le ayudarán a navegar por la complejidad del sistema tributario y a minimizar su carga fiscal</p>n  </div>n  <div class="feature-item feature-item-guindo">n    <i class="fas fa-chart-line"></i>n    <h3>Planificación Financiera</h3>n    <p>Creamos planes financieros personalizados para ayudarle a alcanzar sus objetivos financieros a corto y largo plazo</p>n  </div>n  <div class="feature-item feature-item-guindo">n    <i class="fas fa-search"></i>n    <h3>Auditoría</h3>n    <p>Nuestro equipo de auditores le ayudará a identificar áreas de mejora y a optimizar sus procesos financieros</p>n  </div>n</section>n<section id="testimonials" class="testimonials">n  <h2>Lo que nuestros clientes dicen</h2>n  <div class="testimonial-item testimonial-item-guindo">n    <blockquote>La consultoría financiera de [Nombre de la empresa] ha sido fundamental para el crecimiento de nuestro negocio. Su equipo es profesional y siempre está disponible para responder nuestras preguntas.</blockquote>n    <cite>Juan Pérez, Gerente General de XYZ Inc.</cite>n  </div>n  <div class="testimonial-item testimonial-item-guindo">n    <blockquote>Me sorprendió la calidad del servicio y la atención personalizada que recibimos de [Nombre de la empresa]. Definitivamente recomendamos sus servicios.</blockquote>n    <cite>María Rodríguez, Dueña de ABC S.A.</cite>n  </div>n</section>n<section id="cta" class="cta cta-guindo">n  <h2>¿Necesita ayuda financiera?</h2>n  <p>No dude en contactarnos para obtener más información sobre nuestros servicios y cómo podemos ayudarle a alcanzar sus objetivos financieros.</p>n  <a href="#" class="cta-button cta-button-guindo">Contactarnos</a>n</section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">JDEconomy Academia</div>
+            <div class="footer-text">Página generada con JDEconomy AI Work &copy; 2026</div>
+        </div>
+    </footer>
+
+    <script>
+console.log('JavaScript minimo')
+        // Inicializar tema
+        (function() {
+            const btn = document.querySelector('.theme-toggle');
+            if (!btn) return;
+            const icon = btn.querySelector('.theme-icon');
+            const saved = localStorage.getItem('theme') || 'light';
+            if (saved === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                if (icon) icon.textContent = '🌙';
+            }
+            btn.addEventListener('click', function() {
+                const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+                localStorage.setItem('theme', isDark ? 'light' : 'dark');
+                if (icon) icon.textContent = isDark ? '☀️' : '🌙';
+            });
+        })();
+    </script>
+</body>
+</html>

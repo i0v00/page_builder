@@ -2,32 +2,37 @@
 RewriteEngine On
 RewriteBase /jdeconomy/
 
-# Página de inicio
+# 1. Si el archivo o directorio físico existe, servirlo directamente
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# 2. Página de inicio
 RewriteRule ^$ index.php [L]
 RewriteRule ^index\.php$ - [L]
 
-# Panel de IA (AI Work)
+# 3. Panel de IA (AI Work)
 RewriteRule ^ai-work/?$ ai-work.php [L,NC]
 
-# CRUD de Menús
+# 4. CRUD de Menús
 RewriteRule ^menus/?$ menues.php [L,NC]
 
-# Páginas generadas por IA: /[menu]/[slug]/ (con menú padre)
+# 5. API endpoints (DEBE IR ANTES DE CURSOS Y CATEGORÍAS)
+RewriteRule ^api/(.*)$ api/index.php [L,QSA,NC]
+
+# 6. Páginas generadas por IA: /[menu]/[slug]/ (con menú padre)
 RewriteCond %{DOCUMENT_ROOT}/jdeconomy/generated/$1/$2/index.html -f
 RewriteRule ^([a-z0-9-]+)/([a-z0-9-]+)/?$ generated/$1/$2/index.html [L,NC]
 
-# Páginas generadas directas del sidebar: /[slug]/
+# 7. Páginas generadas directas del sidebar: /[slug]/
 RewriteCond %{DOCUMENT_ROOT}/jdeconomy/generated/sidebar/$1/index.html -f
 RewriteRule ^([a-z0-9-]+)/?$ generated/sidebar/$1/index.html [L,NC]
 
-# Páginas de cursos: /[slug]/[subslug]/
+# 8. Páginas de cursos: /[slug]/[subslug]/
 RewriteRule ^([a-z0-9-]+)/([a-z0-9-]+)/?$ course.php?slug=$1&subslug=$2 [L,QSA,NC]
 
-# Páginas de categoría: /[slug]/
+# 9. Páginas de categoría: /[slug]/
 RewriteRule ^([a-z0-9-]+)/?$ category.php?slug=$1 [L,QSA,NC]
-
-# API endpoints
-RewriteRule ^api/(.*)$ api/index.php [L,QSA,NC]
 
 # Evitar acceso directo a archivos sensibles
 RewriteRule ^\.env - [F,NC]

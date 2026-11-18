@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academia Online - Aprende y Crea - JDEconomy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+:root { --primary-color: #6B1E2A; --light-bg: #FAF7F7; --dark-bg: #121212; --text-color-light: #FFF; --text-color-dark: #333; --transition-duration: 0.3s; --border-radius: 8px; --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); } [data-theme="light"] { background-color: var(--light-bg); color: var(--text-color-dark); } [data-theme="dark"] { background-color: var(--dark-bg); color: var(--text-color-light); } body { font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; padding: 0; line-height: 1.6; } header { background-color: var(--primary-color); color: var(--text-color-light); padding: 1rem; } .logo { font-size: 1.5rem; font-weight: bold; } nav ul { list-style: none; display: flex; gap: 1rem; margin: 0; padding: 0; } nav ul li { display: inline; } nav ul li a { color: var(--text-color-light); text-decoration: none; transition: color var(--transition-duration); } nav ul li a:hover { color: var(--light-bg); } #menu-toggle { display: none; background: none; border: none; color: var(--text-color-light); cursor: pointer; } @media (max-width: 768px) { #menu-toggle { display: block; } nav ul { flex-direction: column; align-items: center; position: absolute; top: 50px; left: 0; right: 0; background-color: var(--primary-color); padding: 1rem; display: none; } nav ul.hidden { display: none; } nav ul.visible { display: flex; } } main { padding: 2rem; } .container { max-width: 1200px; margin: 0 auto; padding: 0 1rem; } .hero { background: linear-gradient(135deg, var(--primary-color), #9A2F36); color: var(--text-color-light); text-align: center; padding: 4rem 0; } .hero h1 { font-size: 2.5rem; margin-bottom: 1rem; } .hero p { font-size: 1.2rem; margin-bottom: 2rem; } .hero .cta-button { background-color: var(--text-color-light); color: var(--primary-color); padding: 0.75rem 1.5rem; border: none; border-radius: var(--border-radius); cursor: pointer; text-decoration: none; transition: background-color var(--transition-duration); } .hero .cta-button:hover { background-color: var(--light-bg); } .description, .features, .testimonials, .cta { margin-top: 2rem; } .description h2, .features h2, .testimonials h2, .cta h2 { font-size: 2rem; margin-bottom: 1rem; } .description p, .features p, .testimonials p, .cta p { font-size: 1rem; margin-bottom: 1rem; } .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; } .feature-item { background-color: var(--light-bg); color: var(--text-color-dark); padding: 1.5rem; border-radius: var(--border-radius); box-shadow: var(--box-shadow); text-align: center; transition: transform var(--transition-duration); } .feature-item:hover { transform: translateY(-5px); } .testimonial-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; } .testimonial-item { background-color: var(--light-bg); color: var(--text-color-dark); padding: 1.5rem; border-radius: var(--border-radius); box-shadow: var(--box-shadow); } .testimonial-item blockquote { margin: 0; } .testimonial-item footer { font-size: 0.9rem; margin-top: 0.5rem; } .cta .cta-button { background-color: var(--primary-color); color: var(--text-color-light); padding: 0.75rem 1.5rem; border: none; border-radius: var(--border-radius); cursor: pointer; text-decoration: none; transition: background-color var(--transition-duration); } .cta .cta-button:hover { background-color: #9A2F36; } footer { text-align: center; padding: 1rem; background-color: var(--primary-color); color: var(--text-color-light); }
+    </style>
+</head>
+<body>
+    <header class="header generated-menu">
+        <div class="header-inner">
+            <div class="logo">
+                <div class="logo-mark">JD</div>
+                <div class="logo-text">JDEconomy</div>
+            </div>
+            <nav class="nav-menu"></nav>
+            <nav class="nav-actions">
+                <button class="theme-toggle" aria-label="Cambiar tema">
+                    <span class="theme-icon">☀️</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+<header><nav><div class="logo">Academia Online</div><button id="menu-toggle" aria-label="Abrir menú"><i class="fas fa-bars"></i></button><ul id="menu" class="hidden" role="menu" aria-labelledby="menu-toggle"><li><a href="#hero" aria-current="page">Inicio</a></li><li><a href="#cursos">Cursos</a></li><li><a href="#precios">Precios</a></li><li><a href="#testimonials">Testimonios</a></li></ul></nav></header><main><section id="hero" class="hero" role="banner"><div class="container"><h1>Aprende y Crea con Nuestra Academia Online</h1><p>Cursos de macroeconomía y ofimática para todos los niveles</p><a href="#cursos" class="cta-button">Explora nuestros cursos</a></div></section><section id="description" class="description" role="region" aria-labelledby="desc-title"><div class="container"><h2 id="desc-title">¿Quiénes somos?</h2><p>Somos un equipo de profesionales apasionados de la educación. Nuestra misión es brindar acceso a la educación de calidad a todos, sin importar su ubicación geográfica o nivel socioeconómico.</p></div></section><section id="cursos" class="features" role="region" aria-labelledby="courses-title"><div class="container"><h2 id="courses-title">Nuestros Cursos</h2><div class="feature-grid"><article class="feature-item"><i class="fa fa-chart-line" aria-hidden="true"></i><h3>Macroeconomía Básica</h3><p>Aprende los conceptos fundamentales de la macroeconomía y cómo aplicarlos en la práctica.</p></article><article class="feature-item"><i class="fa fa-chart-bar" aria-hidden="true"></i><h3>Macroeconomía Avanzada</h3><p>Profundiza en los conceptos de la macroeconomía y aprende a analizar datos económicos complejos.</p></article><article class="feature-item"><i class="fa fa-laptop" aria-hidden="true"></i><h3>Ofimática Básica</h3><p>Aprende a utilizar herramientas ofimáticas como Microsoft Office y Google Suite.</p></article><article class="feature-item"><i class="fa fa-file-excel" aria-hidden="true"></i><h3>Ofimática Avanzada</h3><p>Aprende a utilizar herramientas ofimáticas avanzadas y a crear documentos y presentaciones profesionales.</p></article></div></div></section><section id="precios" class="description" role="region" aria-labelledby="prices-title"><div class="container"><h2 id="prices-title">Precios</h2><p>Nuestros precios son competitivos y accesibles. Consulta nuestros planes y tarifas en nuestra sección de precios.</p></div></section><section id="testimonials" class="testimonials" role="region" aria-labelledby="testimonials-title"><div class="container"><h2 id="testimonials-title">Lo que nuestros estudiantes dicen de nosotros</h2><div class="testimonial-grid"><article class="testimonial-item"><blockquote><p>La academia online me ha ayudado a mejorar mis habilidades en macroeconomía y ofimática. ¡Gracias!</p><footer><p>- Juan Pérez, Estudiante</p></footer></blockquote></article><article class="testimonial-item"><blockquote><p>Me encanta la variedad de cursos que ofrece la academia. ¡Es una excelente opción para aprender!</p><footer><p>- María García, Estudiante</p></footer></blockquote></article></div></div></section><section id="inscription" class="cta" role="region" aria-labelledby="cta-title"><div class="container"><h2 id="cta-title">Inscríbete ahora</h2><p>¿Estás listo para comenzar a aprender? Inscríbete en nuestros cursos y comienza a alcanzar tus objetivos.</p><a href="#" class="cta-button">Inscríbete</a></div></section></main><footer role="contentinfo"><p>&copy; 2023 Academia Online. Todos los derechos reservados.</p></footer>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">JDEconomy</div>
+            <div class="footer-text">Generado con JDEconomy AI Work &copy; 2026</div>
+        </div>
+    </footer>
+
+    <script>
+document.addEventListener('DOMContentLoaded', () => { const menuToggle = document.getElementById('menu-toggle'); const menu = document.getElementById('menu'); menuToggle.addEventListener('click', () => { menu.classList.toggle('visible'); }); const themeToggle = document.getElementById('theme-toggle'); themeToggle.addEventListener('click', () => { document.documentElement.setAttribute('data-theme', document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }); });
+        // Inicializar tema
+        (function() {
+            const btn = document.querySelector('.theme-toggle');
+            const icon = btn.querySelector('.theme-icon');
+            const saved = localStorage.getItem('theme') || 'light';
+            if (saved === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                icon.textContent = '🌙';
+            }
+            btn.addEventListener('click', function() {
+                const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+                localStorage.setItem('theme', isDark ? 'light' : 'dark');
+                icon.textContent = isDark ? '☀️' : '🌙';
+            });
+        })();
+    </script>
+</body>
+</html>

@@ -5,8 +5,10 @@ header('Content-Type: text/html; charset=utf-8');
 
 $menus = [];
 try {
-    $mainMenus = getMenuItems($pdo);
+    $allMenus = getAllMenuItems($pdo);
+    $mainMenus = array_filter($allMenus, fn($m) => $m['parent_id'] === null);
     foreach ($mainMenus as $menu) {
+        $children = array_values(array_filter($allMenus, fn($m) => $m['parent_id'] == $menu['id']));
         $menus[] = [
             'id' => $menu['id'],
             'name' => $menu['name'],
@@ -14,23 +16,8 @@ try {
             'url' => $menu['url'],
             'icon' => $menu['icon'],
             'type' => 'main',
-            'children' => []
+            'children' => $children
         ];
-
-        $children = array_filter($menuItems ?? [], fn($m) => $m['parent_id'] == $menu['id']);
-        foreach ($children as $child) {
-            $menus[] = [
-                'id' => $child['id'],
-                'name' => $child['name'],
-                'slug' => $child['slug'],
-                'url' => $child['url'],
-                'icon' => $child['icon'],
-                'type' => 'sub',
-                'parent_id' => $child['parent_id'],
-                'parent_name' => $menu['name'],
-                'children' => []
-            ];
-        }
     }
 } catch (Exception $e) {
     $menus = [];
@@ -41,42 +28,52 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JDEconomy AI Work | Generador de Páginas con IA</title>
+    <title>JDEconomy AI Work | Generador Autónomo de Páginas con IA</title>
     <link rel="stylesheet" href="/jdeconomy/assets/css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="icon-defs">
-        <svg id="icon-home" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-        <svg id="icon-robot" viewBox="0 0 24 24"><path d="M12 22s8-4 8-4V5l-8-3-8 3v13s8 4 8 4zm0-21c2.2 0 4 1.8 4 4s-1.8 4-4 4-4-1.8-4-4 1.8-4 4-4zm0 14c3.3 0 6-2.7 6-6s-2.7-6-6-6-6 2.7-6 6 2.7 6 6 6zm0-11c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm0 8c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zM7.5 4a.5.5 0 0 1-.5.5v12a.5.5 0 0 1-1 0V4.5a.5.5 0 0 1 .5-.5zM17 4a.5.5 0 0 1-.5.5v12a.5.5 0 0 1-1 0V4.5a.5.5 0 0 1 .5-.5z"/></svg>
-        <svg id="icon-architecture" viewBox="0 0 24 24"><path d="M3 21h18v-6H3v6zM3 2v18h18V2H3z"/></svg>
-        <svg id="icon-construct" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
-        <svg id="icon-review" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-        <svg id="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-        <svg id="icon-check" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-        <svg id="icon-arrow-right" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
-        <svg id="icon-close" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-        <svg id="icon-sun" viewBox="0 0 24 24"><path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2zm-1-12c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zM11 20H2c-.55 0-1 .45-1 1s.45 1 1 1h9c.55 0 1-.45 1-1s-.45-1-1-1zM20.5 10c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5S18.17 13 19 13s1.5-.67 1.5-1.5zM12 2c-3.86 0-7 3.14-7 7s3.14 7 7 7 7-3.14 7-7-3.14-7-7-7z"/></svg>
-        <svg id="icon-moon" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-3.3 0-6-2.7-6-6 0-1.21.32-2.33.88-3.28 1.17-1.16 2.62-1.84 4.2-1.98-.43-1.18-1.51-2-2.82-2zm-1 15c-3.3 0-6-2.7-6-6 0-2.09 1.23-3.9 3-4.76.34.28.54.7.54 1.16 0 1.66 1.34 3 3 3s3-1.34 3-3-1.34-3-3-3c-2.21 0-4 1.79-4 4 0 .57.19 1.09.46 1.54-.92 1.25-1.46 2.73-1.46 4.24 0 3.31 2.69 6 6 6zm11-5c-.47 0-.93-.09-1.37-.25-.14-.16-.21-.39-.21-.63 0-.6.45-1.08 1.05-1.18 1.36-.22 2.44-1.18 2.93-2.58.49-1.41.49-2.95 0-4.36-.49-1.4-1.57-2.36-2.93-2.58-.6-.1-1.05.58-1.05 1.18 0 .24-.07.47-.21.63-.44.16-.9.25-1.37.25-2.2 0-4-1.8-4-4 0-1.1.46-2.08 1.19-2.78.8-.79 1.8-1.26 2.81-1.26 2.2 0 4 1.8 4 4s-1.8 4-4 4z"/></svg>
-    </div>
+    <!-- Definición de Iconos SVG -->
+    <svg class="icon-defs" style="display:none;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <symbol id="icon-home" viewBox="0 0 24 24"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></symbol>
+            <symbol id="icon-robot" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.38-1 1.72V7h4a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3v-8a3 3 0 0 1 3-3h4V5.72c-.6-.34-1-.98-1-1.72a2 2 0 0 1 2-2M7.5 11.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3m9 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3M8 17h8v1.5H8z"/></symbol>
+            <symbol id="icon-architecture" viewBox="0 0 24 24"><path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2m0 16H5V7h14zm-2-2H7v-2h10zm0-4H7v-2h10z"/></symbol>
+            <symbol id="icon-construct" viewBox="0 0 24 24"><path fill="currentColor" d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6z"/></symbol>
+            <symbol id="icon-review" viewBox="0 0 24 24"><path fill="currentColor" d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9z"/></symbol>
+            <symbol id="icon-play" viewBox="0 0 24 24"><path fill="currentColor" d="M8 5v14l11-7z"/></symbol>
+            <symbol id="icon-check" viewBox="0 0 24 24"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></symbol>
+            <symbol id="icon-arrow-right" viewBox="0 0 24 24"><path fill="currentColor" d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></symbol>
+            <symbol id="icon-close" viewBox="0 0 24 24"><path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></symbol>
+            <symbol id="icon-sun" viewBox="0 0 24 24"><path fill="currentColor" d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2zm-9 7h2c.55 0 1-.45 1-1s-.45-1-1-1h-2zm0-18h2c.55 0 1-.45 1-1s-.45-1-1-1h-2zm7.07 3.51l1.41-1.41c.39-.39.39-1.02 0-1.41s-1.02-.39-1.41 0l-1.41 1.41c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0zM4.93 17.66l1.41-1.41c.39-.39.39-1.02 0-1.41s-1.02-.39-1.41 0l-1.41 1.41c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0zm14.14 0c-.39-.39-1.02-.39-1.41 0s-.39 1.02 0 1.41l1.41 1.41c.39.39 1.02.39 1.41 0s.39-1.02 0-1.41zm-14.14-14.14c-.39-.39-1.02-.39-1.41 0s-.39 1.02 0 1.41l1.41 1.41c.39.39 1.02.39 1.41 0s.39-1.02 0-1.41z"/></symbol>
+            <symbol id="icon-moon" viewBox="0 0 24 24"><path fill="currentColor" d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-3.3 0-6-2.7-6-6 0-1.21.32-2.33.88-3.28 1.17-1.16 2.62-1.84 4.2-1.98-.43-1.18-1.51-2-2.82-2z"/></symbol>
+        </defs>
+    </svg>
 
+    <!-- Header Principal -->
     <header class="header">
         <div class="header-inner">
-            <div class="logo">
+            <a href="/jdeconomy/" class="logo">
                 <div class="logo-mark">JD</div>
-                <div class="logo-text">JDEconomy AI Work</div>
-            </div>
+                <div class="logo-text">JDEconomy <span style="font-weight:400; font-size:0.85rem; opacity:0.7;">AI Work</span></div>
+            </a>
             <nav class="nav-menu">
                 <a href="/jdeconomy/" class="nav-link">
                     <span class="icon icon-sm"><svg><use href="#icon-home"></use></svg></span>
-                    Volver a Academia
+                    Academia
                 </a>
-                <a href="#" class="nav-link active">
+                <a href="/jdeconomy/macroeconomia/" class="nav-link">
+                    Macroeconomía
+                </a>
+                <a href="/jdeconomy/ofimatica/" class="nav-link">
+                    Ofimática
+                </a>
+                <a href="/jdeconomy/ai-work/" class="nav-link active">
                     <span class="icon icon-sm"><svg><use href="#icon-robot"></use></svg></span>
                     AI Work
                 </a>
             </nav>
-            <nav class="nav-actions">
+            <div class="nav-actions">
                 <button class="theme-toggle" id="theme-toggle" aria-label="Cambiar tema">
                     <span class="theme-icon">
                         <svg id="theme-sun" width="18" height="18"><use href="#icon-sun"></use></svg>
@@ -86,7 +83,7 @@ try {
                 <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Menú">
                     <span></span><span></span><span></span>
                 </button>
-            </nav>
+            </div>
         </div>
     </header>
 
@@ -95,195 +92,368 @@ try {
             <svg width="20" height="20"><use href="#icon-close"></use></svg>
         </button>
         <nav class="mobile-nav">
-            <a href="/jdeconomy/" class="mobile-link">Volver a Academia</a>
-            <a href="#" class="mobile-link active">AI Work</a>
+            <a href="/jdeconomy/" class="mobile-link">Academia</a>
+            <a href="/jdeconomy/macroeconomia/" class="mobile-link">Macroeconomía</a>
+            <a href="/jdeconomy/ofimatica/" class="mobile-link">Ofimática</a>
+            <a href="/jdeconomy/ai-work/" class="mobile-link active">AI Work</a>
         </nav>
     </div>
 
     <main class="ai-work-container">
+        <!-- Hero Header -->
         <header class="page-header">
-            <h1>AI Work</h1>
-            <p>Generador de páginas con agentes de Cloudflare AI Workers</p>
+            <div class="hero-badge">
+                <span class="badge-dot"></span>
+                <span>Pipeline Multi-Agente • Cloudflare Workers AI</span>
+            </div>
+            <h1>Generador Autónomo de Páginas Web</h1>
+            <p>Crea páginas profesionales y responsivas con un equipo de 3 agentes de IA colaborativos: Arquitecto, Constructor y Supervisor de Calidad.</p>
         </header>
 
         <!-- Formulario Principal -->
         <div class="form-card">
+            <!-- Sección 1: Configuración de Publicación -->
             <div class="form-section">
-                <h2><span class="icon icon-sm"><svg><use href="#icon-architecture"></use></svg></span> Configuración de Página</h2>
+                <h2>
+                    <span class="section-icon"><svg><use href="#icon-architecture"></use></svg></span>
+                    1. Configuración de Destino y Ruta
+                </h2>
                 <div class="form-grid">
                     <div class="form-field">
-                        <label for="page-slug">Slug de la Página <span style="color: var(--color-primary);">*</span></label>
-                        <input type="text" id="page-slug" placeholder="ej: consultoria" maxlength="50">
-                        <small>La URL será: /jdeconomy/[menu]/consultoria/</small>
+                        <label for="page-slug">Slug de la Página <span class="required">*</span></label>
+                        <input type="text" id="page-slug" placeholder="ej: consultoria-financiera" maxlength="50" autocomplete="off" spellcheck="false">
+                        <small>Solo letras minúsculas, números y guiones.</small>
                     </div>
+
                     <div class="form-field">
-                        <label for="menu-parent">Pertenece al Menú <span style="color: var(--color-primary);">*</span></label>
+                        <label for="menu-parent">Pertenece al Menú / Categoría <span class="required">*</span></label>
                         <select id="menu-parent">
-                            <option value="sidebar">Sidebar Superior (aparece directamente arriba)</option>
+                            <option value="sidebar">📌 Sidebar Superior (Acceso directo /[slug]/)</option>
+                            <optgroup label="Menús Principales y Submenús de la Academia">
                             <?php foreach ($menus as $m): ?>
-                                <option value="<?= htmlspecialchars($m['slug']) ?>" <?= $m['type'] === 'sub' ? 'disabled' : '' ?>>
-                                    <?php if ($m['type'] === 'sub'): ?>─ <?php endif; ?>
-                                    <?= htmlspecialchars($m['name']) ?>
-                                    <?php if ($m['type'] === 'main'): ?> (<?= count(array_filter($menus, fn($x) => isset($x['parent_id']) && $x['parent_id'] == $m['id'])) ?> submenú<?= count(array_filter($menus, fn($x) => isset($x['parent_id']) && $x['parent_id'] == $m['id'])) > 1 ? 's' : '' ?>><?php endif; ?>
+                                <option value="<?= htmlspecialchars($m['slug']) ?>">
+                                    📂 <?= htmlspecialchars($m['name']) ?> (/<?= htmlspecialchars($m['slug']) ?>/)
                                 </option>
-                                <?php if ($m['type'] === 'main'): ?>
-                                    <?php foreach ($menus as $child): ?>
-                                        <?php if ($child['type'] === 'sub' && $child['parent_id'] == $m['id']): ?>
-                                            <option value="<?= htmlspecialchars($child['slug']) ?>">
-                                                └─ <?= htmlspecialchars($child['name']) ?>
-                                            </option>
-                                        <?php endif; ?>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
+                                <?php foreach ($m['children'] as $child): ?>
+                                    <option value="<?= htmlspecialchars($child['slug']) ?>">
+                                        &nbsp;&nbsp;&nbsp;&nbsp;↳ 📄 <?= htmlspecialchars($child['name']) ?>
+                                    </option>
+                                <?php endforeach; ?>
                             <?php endforeach; ?>
-                            <option value="personalizado">Menú Personalizado</option>
+                            </optgroup>
+                            <option value="personalizado">✨ Menú Personalizado...</option>
                         </select>
                     </div>
+
                     <div class="form-field" id="menu-custom-field" style="display: none;">
-                        <label for="menu-custom-name">Nombre del ítem personalizado</label>
-                        <input type="text" id="menu-custom-name" placeholder="Ej: Mis Servicios">
-                        <small>Nombre que aparecerá en el menú superior</small>
+                        <label for="menu-custom-name">Nombre del Menú Personalizado <span class="required">*</span></label>
+                        <input type="text" id="menu-custom-name" placeholder="Ej: Especialidades">
+                        <small>Nombre que identificará a la sección.</small>
                     </div>
+                </div>
+
+                <!-- Live URL Preview -->
+                <div class="url-live-preview">
+                    <span class="url-preview-tag">URL FINAL DESTINO:</span>
+                    <code class="url-preview-code" id="live-url-display">http://localhost/jdeconomy/sidebar/pagina/</code>
                 </div>
             </div>
 
+            <!-- Sección 2: Plantillas y Prompt -->
             <div class="form-section">
-                <h2><span class="icon icon-sm"><svg><use href="#icon-robot"></use></svg></span> Prompt de Generación</h2>
+                <h2>
+                    <span class="section-icon"><svg><use href="#icon-robot"></use></svg></span>
+                    2. Prompt de Generación y Plantillas
+                </h2>
+
                 <div class="form-field form-field-full">
-                    <label for="prompt">Describe la página que deseas crear</label>
-                    <textarea id="prompt" rows="10" placeholder="Ejemplo: Crea una página de servicios de consultoría financiera con hero section, 3 features, testimonios y CTA final. Usa colores profesionales y diseño moderno."></textarea>
+                    <div class="field-header">
+                        <label for="prompt">Describe la página web en detalle <span class="required">*</span></label>
+                        <span class="prompt-hint">Puedes escribir tus requerimientos o elegir una plantilla abajo</span>
+                    </div>
+                    <textarea id="prompt" rows="8" placeholder="Ejemplo: Crea una página profesional de servicios de consultoría financiera. Incluye una sección hero impactante con título, subtítulo y CTA. Una sección de descripción sobre los servicios ofrecidos. Tres features principales: asesoría tributaria, planificación financiera y auditoría. Una sección de testimonios con 3 clientes satisfechos. Un CTA final con botón de contacto y footer con información..."></textarea>
+                </div>
+
+                <!-- Plantillas Rápidas -->
+                <div class="templates-header">
+                    <span>O elige una plantilla prediseñada para autocompletar:</span>
                 </div>
                 <div class="templates-grid">
-                    <div class="template-card" onclick="loadTemplate('consultoria')" data-template="consultoria">
-                        <h4>Consultoría Financiera</h4>
-                        <p>Página completa con hero, features, testimonios y CTA para consultoría financiera.</p>
+                    <div class="template-card" data-template="consultoria">
+                        <div class="template-card-top">
+                            <span class="template-icon">💼</span>
+                            <h4>Consultoría Financiera</h4>
+                        </div>
+                        <p>Hero impactante, 3 servicios con tarjetas, testimonios verificados y formulario CTA para consultoría.</p>
                         <div class="template-tags">
                             <span class="template-tag">Hero</span>
-                            <span class="template-tag">Features</span>
+                            <span class="template-tag">Servicios</span>
                             <span class="template-tag">Testimonios</span>
                             <span class="template-tag">CTA</span>
                         </div>
                     </div>
-                    <div class="template-card" onclick="loadTemplate('academia')" data-template="academia">
-                        <h4>Academia Educativa</h4>
-                        <p>Página para cursos online con listado de programas, precios y formulario de inscripción.</p>
+
+                    <div class="template-card" data-template="academia">
+                        <div class="template-card-top">
+                            <span class="template-icon">🎓</span>
+                            <h4>Academia Educativa</h4>
+                        </div>
+                        <p>Catálogo de cursos online, temarios, tabla de precios, opiniones de alumnos y formulario de matrícula.</p>
                         <div class="template-tags">
                             <span class="template-tag">Cursos</span>
                             <span class="template-tag">Precios</span>
                             <span class="template-tag">Inscripción</span>
                         </div>
                     </div>
-                    <div class="template-card" onclick="loadTemplate('corporativo')" data-template="corporativo">
-                        <h4>Sitio Corporativo</h4>
-                        <p>Página institucional con nosotros, servicios, equipo y contacto.</p>
+
+                    <div class="template-card" data-template="corporativo">
+                        <div class="template-card-top">
+                            <span class="template-icon">🏢</span>
+                            <h4>Sitio Corporativo</h4>
+                        </div>
+                        <p>Página institucional con misión/visión, valores, equipo directivo, servicios y formulario de contacto.</p>
                         <div class="template-tags">
-                            <span class="template-tag">Institucional</span>
-                            <span class="template-tag">Servicios</span>
+                            <span class="template-tag">Nosotros</span>
+                            <span class="template-tag">Valores</span>
                             <span class="template-tag">Equipo</span>
                         </div>
                     </div>
-                    <div class="template-card" onclick="loadTemplate('ecommerce')" data-template="ecommerce">
-                        <h4>E-commerce</h4>
-                        <p>Tienda online con catálogo de productos, carrito y checkout.</p>
+
+                    <div class="template-card" data-template="ecommerce">
+                        <div class="template-card-top">
+                            <span class="template-icon">🛒</span>
+                            <h4>E-commerce / Catálogo</h4>
+                        </div>
+                        <p>Vitrina de productos con filtros por categoría, tarjetas de precio, badges de oferta y llamadas a la acción.</p>
                         <div class="template-tags">
                             <span class="template-tag">Productos</span>
-                            <span class="template-tag">Carrito</span>
-                            <span class="template-tag">Pago</span>
+                            <span class="template-tag">Filtros</span>
+                            <span class="template-tag">Precios</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Botón de Generación -->
-        <button class="btn-generate" id="btn-generate">
-            <span>Generar Página con IA</span>
-        </button>
+        <!-- Botón de Generación Principal -->
+        <div class="generate-action-bar">
+            <button class="btn-generate" id="btn-generate">
+                <span class="btn-generate-icon">⚡</span>
+                <span class="btn-generate-text">Generar Página con Agentes IA</span>
+            </button>
+        </div>
 
-        <!-- Pipeline de Agentes -->
+        <!-- Pipeline de Agentes Colaborativos -->
         <div class="agent-pipeline" id="agent-pipeline" style="display: none;">
-            <div class="pipeline-header">
-                <h3><span class="icon icon-sm"><svg><use href="#icon-review"></use></svg></span> Proceso de Generación</h3>
-                <div class="progress-container">
-                    <div class="progress-bar" id="progress-bar"></div>
-                    <span class="progress-text" id="progress-text">0%</span>
+            <!-- Header del Pipeline -->
+            <div class="pipeline-header-card">
+                <div class="pipeline-header-top">
+                    <div class="pipeline-title-group">
+                        <div class="pipeline-status-indicator pulse" id="pipeline-status-dot"></div>
+                        <div>
+                            <h3 class="pipeline-title">Proceso de Generación Autónomo</h3>
+                            <p class="pipeline-subtitle" id="pipeline-subtitle">Inicializando agentes de Cloudflare AI Workers...</p>
+                        </div>
+                    </div>
+                    <div class="pipeline-badge" id="pipeline-badge">En Ejecución</div>
                 </div>
+
+                <!-- Barra de Progreso con Track y Relleno -->
+                <div class="pipeline-progress-wrapper">
+                    <div class="progress-bar-track">
+                        <div class="progress-bar-fill" id="progress-bar" style="width: 0%;"></div>
+                    </div>
+                    <div class="progress-meta">
+                        <span class="progress-phase" id="progress-phase">Fase 1 de 3: Arquitectura</span>
+                        <span class="progress-text" id="progress-text">0%</span>
+                    </div>
+                </div>
+
+                <!-- Prompt Compacto -->
                 <div class="compact-prompt" id="compact-prompt" style="display: none;">
-                    <span class="icon icon-sm"><svg><use href="#icon-robot"></use></svg></span>
-                    <span id="compact-prompt-text"></span>
+                    <span class="compact-prompt-icon">🤖</span>
+                    <div class="compact-prompt-info">
+                        <span class="compact-prompt-label">Prompt Activo:</span>
+                        <span class="compact-prompt-text" id="compact-prompt-text"></span>
+                    </div>
                 </div>
             </div>
-            <div class="pipeline-steps">
-                <div class="pipeline-step" id="step-1">
-                    <div class="step-number">1</div>
-                    <div class="step-label">Arquitecto</div>
+
+            <!-- Stepper Visual de 3 Fases con Conectores -->
+            <div class="pipeline-steps-container">
+                <div class="pipeline-step-item" id="step-1">
+                    <div class="step-node">
+                        <div class="step-icon-wrap">
+                            <span class="step-num">1</span>
+                            <span class="step-check">✔</span>
+                        </div>
+                    </div>
+                    <div class="step-meta">
+                        <span class="step-name">Arquitecto</span>
+                        <span class="step-status" id="step-1-status">En espera</span>
+                    </div>
                 </div>
-                <div class="pipeline-step" id="step-2">
-                    <div class="step-number">2</div>
-                    <div class="step-label">Constructor</div>
+                <div class="step-connector" id="connector-1"></div>
+                <div class="pipeline-step-item" id="step-2">
+                    <div class="step-node">
+                        <div class="step-icon-wrap">
+                            <span class="step-num">2</span>
+                            <span class="step-check">✔</span>
+                        </div>
+                    </div>
+                    <div class="step-meta">
+                        <span class="step-name">Constructor</span>
+                        <span class="step-status" id="step-2-status">En espera</span>
+                    </div>
                 </div>
-                <div class="pipeline-step" id="step-3">
-                    <div class="step-number">3</div>
-                    <div class="step-label">Supervisor</div>
+                <div class="step-connector" id="connector-2"></div>
+                <div class="pipeline-step-item" id="step-3">
+                    <div class="step-node">
+                        <div class="step-icon-wrap">
+                            <span class="step-num">3</span>
+                            <span class="step-check">✔</span>
+                        </div>
+                    </div>
+                    <div class="step-meta">
+                        <span class="step-name">Supervisor</span>
+                        <span class="step-status" id="step-3-status">En espera</span>
+                    </div>
                 </div>
             </div>
-            <div class="step-content" id="content-1">
-                <h4>Agente 1 - Arquitecto de Página</h4>
-                <div class="agent-thinking">
-                    <span class="thinking-label">Pensando:</span>
-                    <p id="msg-1">Analizando el prompt y definiendo la estructura semántica...</p>
+
+            <!-- Tarjetas Interactivas de los 3 Agentes -->
+            <div class="agent-cards-container">
+                <!-- Agente 1: Arquitecto -->
+                <div class="agent-card" id="content-1">
+                    <div class="agent-card-header">
+                        <div class="agent-identity">
+                            <div class="agent-avatar architect-avatar">📐</div>
+                            <div>
+                                <h4>Agente 1 — Arquitecto de Página</h4>
+                                <span class="agent-model-tag">Llama-3.1-70B • Planificación y Estructura Semántica</span>
+                            </div>
+                        </div>
+                        <span class="agent-pill" id="pill-1">En espera</span>
+                    </div>
+                    <div class="agent-card-body">
+                        <div class="agent-status-box" id="status-box-1">
+                            <div class="agent-spinner" id="spinner-1"></div>
+                            <p id="msg-1">Analizando el prompt y definiendo la jerarquía y estructura de secciones...</p>
+                        </div>
+                        <div class="agent-output" id="output-1" style="display: none;">
+                            <div class="output-header">
+                                <span class="output-label">✔ Estructura Arquitectónica Aprobada</span>
+                                <button type="button" class="btn-toggle-raw" onclick="toggleRaw('raw-1')">Ver JSON</button>
+                            </div>
+                            <div class="output-summary" id="summary-1"></div>
+                            <pre id="raw-1" style="display: none;"></pre>
+                        </div>
+                    </div>
                 </div>
-                <div class="agent-output" id="output-1" style="display: none;">
-                    <span class="output-label">Respuesta:</span>
-                    <pre id="raw-1"></pre>
+
+                <!-- Agente 2: Constructor -->
+                <div class="agent-card" id="content-2">
+                    <div class="agent-card-header">
+                        <div class="agent-identity">
+                            <div class="agent-avatar builder-avatar">⚡</div>
+                            <div>
+                                <h4>Agente 2 — Constructor de Archivos</h4>
+                                <span class="agent-model-tag">Qwen-2.5-Coder-32B • Generación HTML5, CSS3 y JS</span>
+                            </div>
+                        </div>
+                        <span class="agent-pill" id="pill-2">En espera</span>
+                    </div>
+                    <div class="agent-card-body">
+                        <div class="agent-status-box" id="status-box-2">
+                            <div class="agent-spinner" id="spinner-2"></div>
+                            <p id="msg-2">Generando código fuente limpio, estilos Guindo responsivos y scripts interactivos...</p>
+                        </div>
+                        <div class="agent-output" id="output-2" style="display: none;">
+                            <div class="output-header">
+                                <span class="output-label">✔ Código Generado y Publicado en Servidor</span>
+                                <button type="button" class="btn-toggle-raw" onclick="toggleRaw('raw-2')">Ver Archivos</button>
+                            </div>
+                            <div class="output-summary" id="summary-2"></div>
+                            <pre id="raw-2" style="display: none;"></pre>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="step-content" id="content-2">
-                <h4>Agente 2 - Constructor de Archivos</h4>
-                <div class="agent-thinking">
-                    <span class="thinking-label">Pensando:</span>
-                    <p id="msg-2">Generando archivos HTML, CSS y JS... Publicando en /[menu]/[slug]/</p>
-                </div>
-                <div class="agent-output" id="output-2" style="display: none;">
-                    <span class="output-label">Respuesta:</span>
-                    <pre id="raw-2"></pre>
-                </div>
-            </div>
-            <div class="step-content" id="content-3">
-                <h4>Agente 3 - Supervisor / Mejorador</h4>
-                <div class="agent-thinking">
-                    <span class="thinking-label">Pensando:</span>
-                    <p id="msg-3">Revisando calidad, accesibilidad y rendimiento...</p>
-                </div>
-                <div class="agent-output" id="output-3" style="display: none;">
-                    <span class="output-label">Respuesta:</span>
-                    <pre id="raw-3"></pre>
+
+                <!-- Agente 3: Supervisor -->
+                <div class="agent-card" id="content-3">
+                    <div class="agent-card-header">
+                        <div class="agent-identity">
+                            <div class="agent-avatar supervisor-avatar">🛡️</div>
+                            <div>
+                                <h4>Agente 3 — Supervisor de Calidad y UX</h4>
+                                <span class="agent-model-tag">Llama-3.1-70B • Accesibilidad WCAG, Rendimiento y Polish</span>
+                            </div>
+                        </div>
+                        <span class="agent-pill" id="pill-3">En espera</span>
+                    </div>
+                    <div class="agent-card-body">
+                        <div class="agent-status-box" id="status-box-3">
+                            <div class="agent-spinner" id="spinner-3"></div>
+                            <p id="msg-3">Auditando contraste de color, coherencia visual, espaciado y soporte dark mode...</p>
+                        </div>
+                        <div class="agent-output" id="output-3" style="display: none;">
+                            <div class="output-header">
+                                <span class="output-label">✔ Auditoría y Mejoras de Calidad Aplicadas</span>
+                                <button type="button" class="btn-toggle-raw" onclick="toggleRaw('raw-3')">Ver Detalles</button>
+                            </div>
+                            <div class="output-summary" id="summary-3"></div>
+                            <pre id="raw-3" style="display: none;"></pre>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Vista Previa -->
+        <!-- Vista Previa Profesional Tipo Browser Mockup -->
         <div class="preview-section" id="preview-section" style="display: none;">
-            <div class="preview-header">
-                <h3><span class="icon icon-sm"><svg><use href="#icon-play"></use></svg></span> Vista Previa</h3>
-                <div class="preview-actions">
-                    <button class="btn-outline" id="btn-copy-url">Copiar URL</button>
-                    <a class="btn-secondary" id="btn-open-page" target="_blank">Abrir en nueva pestaña</a>
+            <div class="browser-mockup">
+                <div class="browser-header">
+                    <div class="browser-dots">
+                        <span class="dot dot-red"></span>
+                        <span class="dot dot-yellow"></span>
+                        <span class="dot dot-green"></span>
+                    </div>
+                    <div class="browser-address-bar">
+                        <span class="browser-ssl-icon">🔒</span>
+                        <span class="browser-url-text" id="browser-url-text">http://localhost/jdeconomy/...</span>
+                    </div>
+                    <div class="browser-viewport-controls">
+                        <button class="viewport-btn active" data-viewport="desktop" title="Escritorio (100%)">💻</button>
+                        <button class="viewport-btn" data-viewport="tablet" title="Tablet (768px)">📱</button>
+                        <button class="viewport-btn" data-viewport="mobile" title="Móvil (375px)">📲</button>
+                    </div>
+                    <div class="browser-actions">
+                        <button type="button" class="btn-preview-action" id="btn-copy-url" title="Copiar URL al portapapeles">📋 Copiar URL</button>
+                        <button type="button" class="btn-preview-action" id="btn-reload-preview" title="Recargar vista previa">🔄</button>
+                        <a class="btn-preview-open" id="btn-open-page" target="_blank" title="Abrir página en nueva pestaña">Abrir en pestaña ↗</a>
+                    </div>
                 </div>
-            </div>
-            <div class="preview-frame-container">
-                <iframe class="preview-frame" id="preview-frame" src="" title="Vista previa de la página generada"></iframe>
+                <div class="browser-viewport-wrapper">
+                    <div class="preview-frame-container" id="preview-container">
+                        <div class="preview-loading-overlay" id="preview-loading" style="display: none;">
+                            <div class="loading-spinner"></div>
+                            <span>Cargando página generada...</span>
+                        </div>
+                        <iframe class="preview-frame" id="preview-frame" src="" title="Vista previa de la página generada"></iframe>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Alertas -->
+        <!-- Contenedor de Alertas Flotantes -->
         <div id="alert-container"></div>
     </main>
 
+    <!-- Footer -->
     <footer>
         <div class="footer-content">
-            <div class="footer-logo">JDEconomy AI Work</div>
-            <div class="footer-text">Generador de páginas con agentes de Cloudflare AI Workers © 2026</div>
+            <div class="footer-logo">JDEconomy Academia</div>
+            <div class="footer-text">Generador autónomo de páginas web con Cloudflare Workers AI © 2026</div>
         </div>
     </footer>
 

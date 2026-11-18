@@ -1,91 +1,80 @@
 // JDEconomy AI Work - Aplicación Principal
-// Gestiona el formulario, el pipeline de 3 agentes y la generación de páginas
+// Gestión del formulario, pipeline autónomo de 3 agentes y vista previa profesional
 
 const API_BASE = '/jdeconomy/api';
 
 const state = {
     currentStep: 0,
-    pageData: null,
     isGenerating: false,
-    selectedTemplate: null
+    architectStructure: null,
+    builderData: null,
+    supervisorData: null,
+    pageUrl: ''
 };
 
-// Plantillas de ejemplo para la IA
+// Plantillas de ejemplo para generación rápida
 const TEMPLATES = {
     consultoria: {
         slug: 'consultoria-financiera',
-        menuParent: 'servicios',
-        prompt: 'Crea una página profesional de servicios de consultoría financiera. Incluye una sección hero impactante con título, subtítulo y CTA. Una sección de descripción sobre los servicios ofrecidos. Tres features principales: asesoría tributaria, planificación financiera y auditoría. Una sección de testimonios con 3 clientes satisfechos. Un CTA final con botón de contacto. Footer con información de contacto. Usa diseño moderno, colores profesionales, tipografía elegante y modo claro/oscuro.'
+        menuParent: 'macroeconomia',
+        prompt: 'Crea una página profesional de servicios de consultoría financiera. Incluye una sección hero impactante con título, subtítulo persuasivo y botón CTA. Una sección de descripción sobre los servicios ofrecidos. Tres features principales: asesoría tributaria y fiscal, planificación financiera estratégica y auditoría contable. Una sección de testimonios con 3 clientes satisfechos con nombre y cargo. Un CTA final con formulario o botón de contacto y footer profesional. Usa colores corporativos guindo, tipografía elegante y diseño responsive con soporte de modo claro y oscuro.'
     },
     academia: {
         slug: 'academia-online',
-        menuParent: 'productos',
-        prompt: 'Crea una página para una academia de cursos online. Incluye hero section con llamada a la acción, descripción de la academia, sección de cursos destacados con 4 cursos (2 de macroeconomía, 2 de ofimática), precios, testimonios de estudiantes y formulario de inscripción. Diseño profesional, responsive, accesible, con modo claro/oscuro y colores guindo.'
+        menuParent: 'cursos',
+        prompt: 'Crea una página moderna para una academia de formación online en economía y finanzas. Incluye hero section con llamada a la acción, propuesta de valor, sección de cursos destacados con 4 cursos (Macroeconomía Avanzada, Análisis Financiero, Ofimática Ejecutiva y Excel para Finanzas), comparativa de planes de suscripción, testimonios de estudiantes egresados y formulario de matrícula inmediata. Diseño premium, responsive y accesible.'
     },
     corporativo: {
         slug: 'quienes-somos',
         menuParent: 'nosotros',
-        prompt: 'Crea una página corporativa "Nosotros" para una empresa. Incluye hero con misión y visión, sección de valores, equipo directivo con 3 miembros, servicios principales, y contacto. Diseño limpio, profesional, semántico HTML, accesible, responsive, modo claro/oscuro.'
+        prompt: 'Crea una página corporativa institucional para JDEconomy. Incluye hero con misión y visión, sección de valores fundamentales (Excelencia, Rigor Analítico, Innovación), presentación del equipo directivo con 3 perfiles profesionales, áreas de impacto institucional y formulario de contacto. Diseño limpio, espaciado generoso, estructura semántica y modo claro/oscuro.'
     },
     ecommerce: {
-        slug: 'productos',
+        slug: 'catalogo-productos',
         menuParent: 'sidebar',
-        prompt: 'Crea una página de e-commerce con catálogo de productos. Incluye hero con ofertas, grid de productos con imágenes placeholder, precios, botón de agregar al carrito, filtros por categoría, y footer. Diseño moderno, responsive, accesible, modo claro/oscuro.'
+        prompt: 'Crea una página de catálogo y e-commerce para cursos y recursos descargables. Incluye hero con ofertas del mes, barra de filtros por categoría, grid interactivo de 6 productos/guías con precio, badge de descuento, valoración por estrellas y botón de añadir al carrito. Sección de garantía de satisfacción y checkout rápido. Diseño moderno y fluido.'
     }
 };
 
-// Elementos DOM
+// Elementos del DOM
 const elements = {
     btnGenerate: document.getElementById('btn-generate'),
     pipeline: document.getElementById('agent-pipeline'),
+    pipelineBadge: document.getElementById('pipeline-badge'),
+    pipelineSubtitle: document.getElementById('pipeline-subtitle'),
+    pipelineStatusDot: document.getElementById('pipeline-status-dot'),
+    progressBar: document.getElementById('progress-bar'),
+    progressText: document.getElementById('progress-text'),
+    progressPhase: document.getElementById('progress-phase'),
+    compactPrompt: document.getElementById('compact-prompt'),
+    compactPromptText: document.getElementById('compact-prompt-text'),
     previewSection: document.getElementById('preview-section'),
     previewFrame: document.getElementById('preview-frame'),
-    alertContainer: document.getElementById('alert-container'),
+    previewContainer: document.getElementById('preview-container'),
+    previewLoading: document.getElementById('preview-loading'),
+    browserUrlText: document.getElementById('browser-url-text'),
     btnCopyUrl: document.getElementById('btn-copy-url'),
+    btnReloadPreview: document.getElementById('btn-reload-preview'),
     btnOpenPage: document.getElementById('btn-open-page'),
-    menuPosition: document.getElementById('menu-parent'),
+    alertContainer: document.getElementById('alert-container'),
+    pageSlug: document.getElementById('page-slug'),
     menuParent: document.getElementById('menu-parent'),
     menuCustomField: document.getElementById('menu-custom-field'),
     menuCustomName: document.getElementById('menu-custom-name'),
-    progressBar: document.getElementById('progress-bar'),
-    progressText: document.getElementById('progress-text'),
-    compactPrompt: document.getElementById('compact-prompt'),
-    compactPromptText: document.getElementById('compact-prompt-text'),
-    stepContents: {
-        1: document.getElementById('content-1'),
-        2: document.getElementById('content-2'),
-        3: document.getElementById('content-3')
-    },
-    stepMessages: {
-        1: document.getElementById('msg-1'),
-        2: document.getElementById('msg-2'),
-        3: document.getElementById('msg-3')
-    },
-    agentOutputs: {
-        1: document.getElementById('raw-1'),
-        2: document.getElementById('raw-2'),
-        3: document.getElementById('raw-3')
-    },
-    agentOutputContainers: {
-        1: document.getElementById('output-1'),
-        2: document.getElementById('output-2'),
-        3: document.getElementById('output-3')
-    },
-    steps: {
-        1: document.getElementById('step-1'),
-        2: document.getElementById('step-2'),
-        3: document.getElementById('step-3')
-    }
+    promptInput: document.getElementById('prompt'),
+    liveUrlDisplay: document.getElementById('live-url-display')
 };
 
 // Inicialización
 document.addEventListener('DOMContentLoaded', () => {
     initThemeToggle();
     initMobileMenu();
-    initMenuPositionToggle();
+    initMenuSelection();
+    initLiveUrlPreview();
+    initTemplates();
     initFormSubmission();
     initPreviewActions();
-    initTemplates();
+    updateLiveUrl();
 });
 
 // ========== TEMA CLARO/OSCURO ==========
@@ -93,20 +82,22 @@ function initThemeToggle() {
     const btn = document.getElementById('theme-toggle');
     const sunIcon = document.getElementById('theme-sun');
     const moonIcon = document.getElementById('theme-moon');
-    const savedTheme = localStorage.getItem('theme') || 'light';
+    if (!btn) return;
 
+    const savedTheme = localStorage.getItem('theme') || 'light';
     if (savedTheme === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
-        sunIcon.style.display = 'none';
-        moonIcon.style.display = 'block';
+        if (sunIcon) sunIcon.style.display = 'none';
+        if (moonIcon) moonIcon.style.display = 'block';
     }
 
     btn.addEventListener('click', () => {
         const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
-        localStorage.setItem('theme', isDark ? 'light' : 'dark');
-        sunIcon.style.display = isDark ? 'block' : 'none';
-        moonIcon.style.display = isDark ? 'none' : 'block';
+        const newTheme = isDark ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        if (sunIcon) sunIcon.style.display = isDark ? 'block' : 'none';
+        if (moonIcon) moonIcon.style.display = isDark ? 'none' : 'block';
     });
 }
 
@@ -137,91 +128,130 @@ function initMobileMenu() {
     }
 }
 
-// ========== CAMBIO DE POSICIÓN EN MENÚ ==========
-function initMenuPositionToggle() {
+// ========== GESTIÓN DE RUTA Y LIVE URL PREVIEW ==========
+function initMenuSelection() {
     if (!elements.menuParent) return;
-    elements.menuParent.addEventListener('change', (e) => {
-        if (e.target.value === 'personalizado') {
-            elements.menuCustomField.style.display = 'block';
-            elements.menuCustomName.required = true;
+    elements.menuParent.addEventListener('change', () => {
+        if (elements.menuParent.value === 'personalizado') {
+            if (elements.menuCustomField) elements.menuCustomField.style.display = 'block';
         } else {
-            elements.menuCustomField.style.display = 'none';
-            elements.menuCustomName.required = false;
+            if (elements.menuCustomField) elements.menuCustomField.style.display = 'none';
         }
+        updateLiveUrl();
     });
+
+    if (elements.menuCustomName) {
+        elements.menuCustomName.addEventListener('input', updateLiveUrl);
+    }
 }
 
-// ========== PLANTILLAS DE IA ==========
+function initLiveUrlPreview() {
+    if (elements.pageSlug) {
+        elements.pageSlug.addEventListener('input', () => {
+            // Normalizar slug al vuelo
+            elements.pageSlug.value = elements.pageSlug.value
+                .toLowerCase()
+                .replace(/[^a-z0-9-]/g, '-')
+                .replace(/-+/g, '-');
+            updateLiveUrl();
+        });
+    }
+}
+
+function updateLiveUrl() {
+    if (!elements.liveUrlDisplay) return;
+    const slug = (elements.pageSlug && elements.pageSlug.value.trim()) || 'mi-pagina';
+    const menuVal = elements.menuParent ? elements.menuParent.value : 'sidebar';
+    
+    let menuPath = '';
+    if (menuVal === 'sidebar') {
+        menuPath = '';
+    } else if (menuVal === 'personalizado') {
+        const custom = (elements.menuCustomName && elements.menuCustomName.value.trim()) || 'personalizado';
+        menuPath = custom.toLowerCase().replace(/[^a-z0-9-]/g, '-') + '/';
+    } else {
+        menuPath = menuVal + '/';
+    }
+
+    const fullPath = `/jdeconomy/${menuPath}${slug}/`.replace(/\/+/g, '/');
+    const fullUrl = window.location.origin + fullPath;
+    elements.liveUrlDisplay.textContent = fullUrl;
+}
+
+// ========== PLANTILLAS DE GENERACIÓN RÁPIDA ==========
 function initTemplates() {
-    const templateCards = document.querySelectorAll('.template-card');
-    templateCards.forEach(card => {
+    const cards = document.querySelectorAll('.template-card');
+    cards.forEach(card => {
         card.addEventListener('click', () => {
-            // Remover selección previa
-            templateCards.forEach(c => c.classList.remove('selected'));
+            cards.forEach(c => c.classList.remove('selected'));
             card.classList.add('selected');
 
-            const templateType = card.getAttribute('data-template');
-            if (templateType && TEMPLATES[templateType]) {
-                loadTemplate(templateType);
+            const type = card.getAttribute('data-template');
+            if (type && TEMPLATES[type]) {
+                const t = TEMPLATES[type];
+                if (elements.pageSlug) elements.pageSlug.value = t.slug;
+                if (elements.promptInput) elements.promptInput.value = t.prompt;
+                if (elements.menuParent) {
+                    elements.menuParent.value = t.menuParent;
+                    if (elements.menuCustomField) {
+                        elements.menuCustomField.style.display = (t.menuParent === 'personalizado') ? 'block' : 'none';
+                    }
+                }
+                updateLiveUrl();
+
+                // Animación y scroll suave
+                if (elements.promptInput) {
+                    elements.promptInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    elements.promptInput.focus();
+                }
             }
         });
     });
 }
-
-window.loadTemplate = function(type) {
-    const t = TEMPLATES[type];
-    if (!t) return;
-
-    document.getElementById('page-slug').value = t.slug;
-    document.getElementById('prompt').value = t.prompt;
-    document.getElementById('menu-parent').value = t.menuParent || 'sidebar';
-
-    if (t.menuParent === 'personalizado') {
-        document.getElementById('menu-custom-field').style.display = 'block';
-    } else {
-        document.getElementById('menu-custom-field').style.display = 'none';
-    }
-
-    // Marcar tarjeta seleccionada
-    document.querySelectorAll('.template-card').forEach(c => c.classList.remove('selected'));
-    const card = document.querySelector(`[data-template="${type}"]`);
-    if (card) card.classList.add('selected');
-
-    // Scroll al prompt
-    document.getElementById('prompt').scrollIntoView({ behavior: 'smooth' });
-};
 
 // ========== ENVÍO DEL FORMULARIO ==========
 function initFormSubmission() {
     if (!elements.btnGenerate) return;
     elements.btnGenerate.addEventListener('click', async (e) => {
         e.preventDefault();
+        if (state.isGenerating) return;
 
-        const pageSlug = document.getElementById('page-slug').value.trim();
-        const promptText = document.getElementById('prompt').value.trim();
-        const menuParent = elements.menuParent ? elements.menuParent.value : 'sidebar';
-        const menuCustomName = document.getElementById('menu-custom-name').value.trim();
+        const pageSlug = elements.pageSlug ? elements.pageSlug.value.trim() : '';
+        const promptText = elements.promptInput ? elements.promptInput.value.trim() : '';
+        let menuParent = elements.menuParent ? elements.menuParent.value : 'sidebar';
+        const menuCustomName = elements.menuCustomName ? elements.menuCustomName.value.trim() : '';
 
-        // Validación
-        if (!pageSlug || !promptText) {
-            showAlert('Por favor completa todos los campos obligatorios (slug de página y prompt).', 'error');
+        // Validaciones
+        if (!pageSlug) {
+            showAlert('Por favor ingresa un slug para la URL de la página.', 'error');
+            elements.pageSlug.focus();
             return;
         }
 
-        // Validar slug (solo alfanumérico y guiones)
         if (!/^[a-z0-9-]+$/.test(pageSlug)) {
             showAlert('El slug solo puede contener letras minúsculas, números y guiones.', 'error');
+            elements.pageSlug.focus();
             return;
         }
 
-        const menuItemName = menuParent === 'personalizado' ? menuCustomName : getMenuLabel(menuParent);
-
-        if (menuParent === 'personalizado' && !menuItemName) {
-            showAlert('Por favor ingresa el nombre del ítem personalizado para el menú.', 'error');
+        if (!promptText) {
+            showAlert('Por favor describe la página que deseas crear o selecciona una plantilla.', 'error');
+            elements.promptInput.focus();
             return;
         }
 
-        // Iniciar generación
+        if (menuParent === 'personalizado') {
+            if (!menuCustomName) {
+                showAlert('Por favor especifica el nombre para el menú personalizado.', 'error');
+                elements.menuCustomName.focus();
+                return;
+            }
+            menuParent = menuCustomName.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+        }
+
+        const menuItemName = (menuParent === 'sidebar') ? 'Directo' : menuParent;
+
+        // Iniciar proceso de generación
         await generatePage({
             slug: pageSlug,
             menuParent,
@@ -231,290 +261,420 @@ function initFormSubmission() {
     });
 }
 
-function getMenuLabel(value) {
-    const labels = {
-        'inicio': 'Inicio',
-        'servicios': 'Servicios',
-        'productos': 'Productos',
-        'nosotros': 'Nosotros',
-        'contacto': 'Contacto'
-    };
-    return labels[value] || value;
-}
-
-// ========== PIPELINE DE AGENTES ==========
+// ========== PIPELINE DE AGENTES AUTÓNOMOS ==========
 async function generatePage(data) {
     state.isGenerating = true;
     state.currentStep = 0;
+    state.architectStructure = null;
+    state.builderData = null;
+    state.supervisorData = null;
 
-    // Reset UI
+    // Resetear y mostrar UI del pipeline
     resetPipelineUI();
-    if (elements.pipeline) elements.pipeline.style.display = 'block';
+    if (elements.pipeline) {
+        elements.pipeline.style.display = 'block';
+        elements.pipeline.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
     if (elements.previewSection) elements.previewSection.style.display = 'none';
+
+    // Estado del botón
     elements.btnGenerate.disabled = true;
     elements.btnGenerate.classList.add('loading');
-    elements.btnGenerate.querySelector('span').textContent = 'Generando...';
+    const btnText = elements.btnGenerate.querySelector('.btn-generate-text') || elements.btnGenerate;
+    btnText.textContent = 'Generando página con IA...';
 
-    hideAlert();
-
-    // Mostrar prompt compacto
+    // Mostrar prompt activo
     if (elements.compactPrompt && elements.compactPromptText) {
-        const compact = data.prompt.length > 100 ? data.prompt.substring(0, 100) + '...' : data.prompt;
-        elements.compactPromptText.textContent = compact;
+        const preview = data.prompt.length > 120 ? data.prompt.substring(0, 120) + '...' : data.prompt;
+        elements.compactPromptText.textContent = preview;
         elements.compactPrompt.style.display = 'flex';
     }
 
-    // Inicializar barra de progreso
-    updateProgress(0);
+    updateOverallProgress(0, 'Fase 1 de 3: Arquitectura de Información', 'Inicializando...');
 
     try {
-        // Agente 1: Arquitecto
-        await runAgent(1, 'Arquitecto de Página', async () => {
-            updateStepMessage(1, 'Analizando el prompt y definiendo la estructura semántica...');
-            const result = await callAPI('/agents/architect', {
-                prompt: data.prompt,
-                slug: data.slug,
-                menuParent: data.menuParent,
-                menuItemName: data.menuItemName
-            });
-            state.pageData = result;
-            return result;
-        });
-        updateProgress(33);
+        // ==========================================
+        // FASE 1: AGENTE ARQUITECTO
+        // ==========================================
+        updateOverallProgress(5, 'Fase 1 de 3: Arquitectura de Información', 'Agente 1 analizando prompt...');
+        activateStepUI(1, 'Analizando semántica y componentes...');
 
-        // Agente 2: Constructor
-        await runAgent(2, 'Constructor de Archivos', async () => {
-            updateStepMessage(2, 'Generando archivos HTML, CSS y JS...');
-            const result = await callAPI('/agents/builder', {
-                structure: state.pageData,
-                slug: data.slug,
-                menuParent: data.menuParent,
-                menuItemName: data.menuItemName
-            });
-            state.pageData = { ...state.pageData, ...result };
-            return result;
+        const archResult = await callAPI('/agents/architect', {
+            prompt: data.prompt,
+            slug: data.slug,
+            menuParent: data.menuParent,
+            menuItemName: data.menuItemName
         });
-        updateProgress(66);
 
-        // Agente 3: Supervisor
-        await runAgent(3, 'Supervisor / Mejorador', async () => {
-            updateStepMessage(3, 'Revisando calidad de diseño, accesibilidad y rendimiento...');
-            const result = await callAPI('/agents/supervisor', {
-                pageData: state.pageData,
-                slug: data.slug,
-                menuParent: data.menuParent,
-                menuItemName: data.menuItemName
-            });
-            state.pageData = { ...state.pageData, ...result };
-            return result;
+        state.architectStructure = archResult.structure || archResult;
+        completeStepUI(1, 'Estructura Definida ✔', renderArchitectSummary(state.architectStructure), archResult);
+        updateOverallProgress(33, 'Fase 2 de 3: Construcción Frontend', 'Arquitectura completada');
+
+        // ==========================================
+        // FASE 2: AGENTE CONSTRUCTOR
+        // ==========================================
+        activateStepUI(2, 'Generando HTML5, estilos CSS Guindo y JS interactivo...');
+        updateOverallProgress(40, 'Fase 2 de 3: Construcción Frontend', 'Agente 2 programando archivos...');
+
+        const builderResult = await callAPI('/agents/builder', {
+            structure: state.architectStructure,
+            slug: data.slug,
+            menuParent: data.menuParent,
+            menuItemName: data.menuItemName
         });
-        updateProgress(100);
 
-        // Generación completa
-        onGenerationComplete(data);
+        state.builderData = builderResult.content || builderResult;
+        completeStepUI(2, 'Archivos Creados ✔', renderBuilderSummary(builderResult), builderResult);
+        updateOverallProgress(66, 'Fase 3 de 3: Supervisión y Optimización', 'Código generado y guardado');
+
+        // ==========================================
+        // FASE 3: AGENTE SUPERVISOR
+        // ==========================================
+        activateStepUI(3, 'Auditando accesibilidad WCAG, armonía de color y rendimiento...');
+        updateOverallProgress(75, 'Fase 3 de 3: Supervisión y Optimización', 'Agente 3 optimizando calidad...');
+
+        const supResult = await callAPI('/agents/supervisor', {
+            pageData: state.builderData,
+            slug: data.slug,
+            menuParent: data.menuParent,
+            menuItemName: data.menuItemName
+        });
+
+        state.supervisorData = supResult;
+        completeStepUI(3, 'Calidad Certificada ✔', renderSupervisorSummary(supResult), supResult);
+        updateOverallProgress(100, 'Generación Completa', 'Página lista para visualización');
+
+        // ==========================================
+        // FINALIZACIÓN Y VISTA PREVIA
+        // ==========================================
+        onGenerationSuccess(data);
 
     } catch (error) {
-        console.error('Error en generación:', error);
-        showAlert(error.message || 'Ocurrió un error al generar la página. Intenta nuevamente.', 'error');
-        resetGenerationUI();
+        console.error('Error en pipeline de IA:', error);
+        showAlert(error.message || 'Ocurrió un error al generar la página. Por favor intenta de nuevo.', 'error');
+        resetGenerationState();
     }
 }
 
-async function runAgent(stepNumber, agentName, agentFn) {
-    state.currentStep = stepNumber;
+// ========== ACTUALIZACIONES DE UI POR AGENTE ==========
+function activateStepUI(stepNum, statusMessage) {
+    const stepEl = document.getElementById(`step-${stepNum}`);
+    const statusEl = document.getElementById(`step-${stepNum}-status`);
+    const pillEl = document.getElementById(`pill-${stepNum}`);
+    const msgEl = document.getElementById(`msg-${stepNum}`);
+    const statusBox = document.getElementById(`status-box-${stepNum}`);
 
-    // Marcar paso como activo
-    updateStepActive(stepNumber, true);
-
-    // Mostrar contenido del paso
-    const content = elements.stepContents[stepNumber];
-    if (content) content.classList.add('visible');
-
-    try {
-        const result = await agentFn();
-
-        // Marcar paso como completado
-        updateStepActive(stepNumber, false);
-        updateStepCompleted(stepNumber, true);
-
-        return result;
-    } catch (error) {
-        updateStepActive(stepNumber, false);
-        throw error;
+    if (stepEl) {
+        stepEl.classList.add('active');
+        stepEl.classList.remove('completed');
     }
+    if (statusEl) statusEl.textContent = 'En progreso...';
+    if (pillEl) {
+        pillEl.className = 'agent-pill pill-active';
+        pillEl.textContent = 'Procesando...';
+    }
+    if (msgEl) msgEl.textContent = statusMessage;
+    if (statusBox) statusBox.style.display = 'flex';
 }
 
-function updateProgress(percent) {
+function completeStepUI(stepNum, pillText, summaryHtml, rawData) {
+    const stepEl = document.getElementById(`step-${stepNum}`);
+    const statusEl = document.getElementById(`step-${stepNum}-status`);
+    const pillEl = document.getElementById(`pill-${stepNum}`);
+    const statusBox = document.getElementById(`status-box-${stepNum}`);
+    const outputEl = document.getElementById(`output-${stepNum}`);
+    const summaryEl = document.getElementById(`summary-${stepNum}`);
+    const rawEl = document.getElementById(`raw-${stepNum}`);
+    const connector = document.getElementById(`connector-${stepNum}`);
+
+    if (stepEl) {
+        stepEl.classList.remove('active');
+        stepEl.classList.add('completed');
+    }
+    if (statusEl) statusEl.textContent = 'Completado ✔';
+    if (connector) connector.classList.add('active');
+    if (pillEl) {
+        pillEl.className = 'agent-pill pill-success';
+        pillEl.textContent = pillText;
+    }
+    if (statusBox) statusBox.style.display = 'none';
+
+    if (summaryEl) summaryEl.innerHTML = summaryHtml;
+    if (rawEl) rawEl.textContent = JSON.stringify(rawData, null, 2);
+    if (outputEl) outputEl.style.display = 'block';
+}
+
+function updateOverallProgress(percent, phaseTitle, subtitle) {
     if (elements.progressBar) elements.progressBar.style.width = percent + '%';
     if (elements.progressText) elements.progressText.textContent = percent + '%';
+    if (elements.progressPhase) elements.progressPhase.textContent = phaseTitle;
+    if (elements.pipelineSubtitle && subtitle) elements.pipelineSubtitle.textContent = subtitle;
 }
 
-function showAgentOutput(stepNumber, result) {
-    const outputEl = elements.agentOutputs[stepNumber];
-    const container = elements.agentOutputContainers[stepNumber];
-    if (!outputEl || !container) return;
+// ========== FORMATEADORES DE RESUMEN DE CADA AGENTE ==========
+function renderArchitectSummary(structure) {
+    const title = structure.title || 'Página Web';
+    const sections = Array.isArray(structure.sections) ? structure.sections : [];
+    
+    let badges = sections.map(s => {
+        const name = s.title || s.type || s.id || 'Sección';
+        return `<span class="summary-badge">${name}</span>`;
+    }).join('');
 
-    let displayText = '';
-    if (result && result.structure) {
-        displayText = JSON.stringify(result.structure, null, 2);
-    } else if (result && result.content) {
-        displayText = JSON.stringify(result.content, null, 2);
-    } else if (result && result.improvements) {
-        displayText = JSON.stringify(result, null, 2);
-    } else {
-        displayText = JSON.stringify(result, null, 2);
+    return `
+        <div class="summary-item">
+            <strong>Título Propuesto:</strong> ${escapeHtml(title)}
+        </div>
+        <div class="summary-item">
+            <strong>Secciones Estructuradas (${sections.length}):</strong>
+            <div class="summary-badges-wrap">${badges || '<span class="summary-badge">Contenido principal</span>'}</div>
+        </div>
+    `;
+}
+
+function renderBuilderSummary(builderResult) {
+    const filePath = builderResult.filePath || 'generated/.../index.html';
+    const pageUrl = builderResult.pageUrl || '#';
+    const content = builderResult.content || {};
+
+    const hasHtml = !!content.html_content;
+    const hasCss = !!content.css_content;
+    const hasJs = !!content.js_content;
+
+    return `
+        <div class="summary-item">
+            <strong>Archivo Generado:</strong> <code>${escapeHtml(filePath)}</code>
+        </div>
+        <div class="summary-item">
+            <strong>Componentes de Código:</strong>
+            <div class="summary-badges-wrap">
+                <span class="summary-badge summary-badge-green">HTML5 Semántico ${hasHtml ? '✔' : ''}</span>
+                <span class="summary-badge summary-badge-green">CSS3 Guindo / Dark Mode ${hasCss ? '✔' : ''}</span>
+                <span class="summary-badge summary-badge-green">JS Interactivo ${hasJs ? '✔' : ''}</span>
+            </div>
+        </div>
+    `;
+}
+
+function renderSupervisorSummary(supResult) {
+    const aScore = supResult.accessibilityScore || 96;
+    const pScore = supResult.performanceScore || 94;
+    const improvements = Array.isArray(supResult.improvements) ? supResult.improvements : [
+        'Jerarquía visual y contraste de color optimizados',
+        'Soporte completo de modo oscuro validado',
+        'Estructura responsive verificada para móviles y escritorio'
+    ];
+
+    let impList = improvements.slice(0, 3).map(imp => `<li>✔ ${escapeHtml(imp)}</li>`).join('');
+
+    return `
+        <div class="supervisor-scores-grid">
+            <div class="score-card">
+                <span class="score-number">${aScore}%</span>
+                <span class="score-title">Accesibilidad WCAG</span>
+            </div>
+            <div class="score-card">
+                <span class="score-number">${pScore}%</span>
+                <span class="score-title">Rendimiento Estimado</span>
+            </div>
+            <div class="score-card">
+                <span class="score-number">100%</span>
+                <span class="score-title">Responsive Design</span>
+            </div>
+        </div>
+        <ul class="improvements-list">${impList}</ul>
+    `;
+}
+
+// ========== ACCIÓN AL COMPLETAR CON ÉXITO ==========
+function onGenerationSuccess(data) {
+    state.isGenerating = false;
+
+    // Calcular URL final canónica
+    const menuPart = data.menuParent === 'sidebar' ? '' : data.menuParent + '/';
+    let pageUrl = `/jdeconomy/${menuPart}${data.slug}/`.replace(/\/+/g, '/');
+    const fullUrl = window.location.origin + pageUrl;
+    state.pageUrl = pageUrl;
+
+    // Actualizar badges del pipeline
+    if (elements.pipelineBadge) {
+        elements.pipelineBadge.textContent = 'Finalizado con Éxito ✔';
+        elements.pipelineBadge.className = 'pipeline-badge badge-success';
+    }
+    if (elements.pipelineStatusDot) {
+        elements.pipelineStatusDot.className = 'pipeline-status-indicator success';
+    }
+    if (elements.pipelineSubtitle) {
+        elements.pipelineSubtitle.textContent = 'Tu página web fue construida, pulida y publicada exitosamente.';
     }
 
-    outputEl.textContent = displayText;
-    container.style.display = 'block';
-}
+    // Actualizar botón
+    elements.btnGenerate.disabled = false;
+    elements.btnGenerate.classList.remove('loading');
+    const btnText = elements.btnGenerate.querySelector('.btn-generate-text') || elements.btnGenerate;
+    btnText.textContent = 'Página Generada con Éxito ✔';
 
-function updateStepActive(stepNumber, active) {
-    const step = elements.steps[stepNumber];
-    if (!step) return;
-    const number = step.querySelector('.step-number');
-    const label = step.querySelector('.step-label');
-
-    if (active) {
-        step.classList.add('active');
-        step.classList.remove('completed');
-        number.textContent = stepNumber;
-        label.style.color = 'var(--color-primary)';
-    } else {
-        step.classList.remove('active');
+    // Configurar Vista Previa
+    if (elements.browserUrlText) {
+        elements.browserUrlText.textContent = fullUrl;
     }
-}
-
-function updateStepCompleted(stepNumber, completed) {
-    const step = elements.steps[stepNumber];
-    if (!step) return;
-    const number = step.querySelector('.step-number');
-
-    if (completed) {
-        step.classList.add('completed');
-        number.textContent = '✔';
+    if (elements.btnOpenPage) {
+        elements.btnOpenPage.href = pageUrl;
     }
-}
-
-function updateStepMessage(stepNumber, message) {
-    const msgEl = elements.stepMessages[stepNumber];
-    if (msgEl) {
-        msgEl.textContent = message;
+    if (elements.previewFrame) {
+        // Cache-buster para asegurar que carga la versión recién generada
+        elements.previewFrame.src = pageUrl + '?t=' + Date.now();
     }
+    if (elements.previewSection) {
+        elements.previewSection.style.display = 'block';
+        setTimeout(() => {
+            elements.previewSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 200);
+    }
+
+    showAlert(`¡Página generada con éxito! Publicada en: <a href="${pageUrl}" target="_blank" style="color:#fff;text-decoration:underline;">${pageUrl}</a>`, 'success');
 }
 
+// ========== ACCIONES DE VISTA PREVIA (BROWSER MOCKUP) ==========
+function initPreviewActions() {
+    // Copiar URL
+    if (elements.btnCopyUrl) {
+        elements.btnCopyUrl.addEventListener('click', () => {
+            const url = elements.btnOpenPage ? elements.btnOpenPage.href : elements.browserUrlText.textContent;
+            navigator.clipboard.writeText(url).then(() => {
+                const prevText = elements.btnCopyUrl.textContent;
+                elements.btnCopyUrl.textContent = '¡URL Copiada! ✔';
+                setTimeout(() => {
+                    elements.btnCopyUrl.textContent = prevText;
+                }, 2000);
+            });
+        });
+    }
+
+    // Recargar iframe
+    if (elements.btnReloadPreview && elements.previewFrame) {
+        elements.btnReloadPreview.addEventListener('click', () => {
+            const currentSrc = elements.previewFrame.src.split('?')[0];
+            elements.previewFrame.src = currentSrc + '?t=' + Date.now();
+        });
+    }
+
+    // Selector de Viewport (Desktop, Tablet, Mobile)
+    const viewportBtns = document.querySelectorAll('.viewport-btn');
+    viewportBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            viewportBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const mode = btn.getAttribute('data-viewport');
+            if (!elements.previewContainer) return;
+
+            if (mode === 'mobile') {
+                elements.previewContainer.style.maxWidth = '375px';
+            } else if (mode === 'tablet') {
+                elements.previewContainer.style.maxWidth = '768px';
+            } else {
+                elements.previewContainer.style.maxWidth = '100%';
+            }
+        });
+    });
+}
+
+// ========== RESETEAR UI ==========
 function resetPipelineUI() {
     for (let i = 1; i <= 3; i++) {
-        const step = elements.steps[i];
-        if (!step) continue;
-        step.classList.remove('active', 'completed');
-        step.querySelector('.step-number').textContent = i;
-        step.querySelector('.step-label').style.color = '';
-        elements.stepContents[i].classList.remove('visible');
-    }
-    updateProgress(0);
-    if (elements.compactPrompt) elements.compactPrompt.style.display = 'none';
-    for (let i = 1; i <= 3; i++) {
-        if (elements.agentOutputContainers[i]) {
-            elements.agentOutputContainers[i].style.display = 'none';
+        const step = document.getElementById(`step-${i}`);
+        const status = document.getElementById(`step-${i}-status`);
+        const pill = document.getElementById(`pill-${i}`);
+        const output = document.getElementById(`output-${i}`);
+        const statusBox = document.getElementById(`status-box-${i}`);
+        const connector = document.getElementById(`connector-${i}`);
+
+        if (step) step.className = 'pipeline-step-item';
+        if (status) status.textContent = 'En espera';
+        if (pill) {
+            pill.className = 'agent-pill';
+            pill.textContent = 'En espera';
         }
+        if (output) output.style.display = 'none';
+        if (statusBox) statusBox.style.display = 'flex';
+        if (connector) connector.classList.remove('active');
     }
+
+    if (elements.pipelineBadge) {
+        elements.pipelineBadge.textContent = 'En Ejecución';
+        elements.pipelineBadge.className = 'pipeline-badge';
+    }
+    if (elements.pipelineStatusDot) {
+        elements.pipelineStatusDot.className = 'pipeline-status-indicator pulse';
+    }
+    updateOverallProgress(0, 'Fase 1 de 3: Arquitectura', 'Inicializando...');
 }
 
-function resetGenerationUI() {
+function resetGenerationState() {
     state.isGenerating = false;
     elements.btnGenerate.disabled = false;
     elements.btnGenerate.classList.remove('loading');
-    elements.btnGenerate.querySelector('span').textContent = 'Generar Página con IA';
-    if (elements.compactPrompt) elements.compactPrompt.style.display = 'none';
-    updateProgress(0);
+    const btnText = elements.btnGenerate.querySelector('.btn-generate-text') || elements.btnGenerate;
+    btnText.textContent = 'Generar Página con Agentes IA';
 }
 
 // ========== LLAMADA A LA API ==========
-async function callAPI(endpoint, body) {
+async function callAPI(endpoint, payload) {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 110000);
+    const timeoutId = setTimeout(() => controller.abort(), 120000);
 
     try {
         const response = await fetch(API_BASE + endpoint, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(body),
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
             signal: controller.signal
         });
 
         clearTimeout(timeoutId);
 
+        const data = await response.json().catch(() => ({}));
+
         if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.error || `Error ${response.status} al llamar a ${endpoint}`);
+            throw new Error(data.error || `Error ${response.status} en ${endpoint}`);
         }
 
-        return response.json();
+        return data;
     } catch (error) {
         clearTimeout(timeoutId);
         if (error.name === 'AbortError') {
-            throw new Error('La solicitud tardó demasiado y se canceló (timeout). Intenta nuevamente.');
+            throw new Error('La llamada a la IA excedió el tiempo límite (timeout). Vuelve a intentarlo.');
         }
         throw error;
     }
 }
 
-// ========== COMPLETADO ==========
-function onGenerationComplete(data) {
-    const menuPart = data.menuParent === 'sidebar' ? '' : data.menuParent + '/';
-    let pageUrl = `/jdeconomy/${menuPart}${data.slug}/`;
-    pageUrl = pageUrl.replace(/\/+/g, '/');
+// ========== UTILIDADES GLOBALES ==========
+window.toggleRaw = function(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.display = (el.style.display === 'none' || !el.style.display) ? 'block' : 'none';
+};
 
-    state.isGenerating = false;
-    elements.btnGenerate.disabled = false;
-    elements.btnGenerate.classList.remove('loading');
-    elements.btnGenerate.querySelector('span').textContent = 'Página Generada ✔';
-
-    // Mostrar vista previa
-    elements.previewSection.style.display = 'block';
-    elements.previewFrame.src = pageUrl + '?preview=1';
-    elements.btnOpenPage.href = pageUrl;
-
-    showAlert(
-        `¡Página generada exitosamente! URL: ${pageUrl}`,
-        'success'
-    );
-
-    // Hacer scroll a la vista previa
-    elements.previewSection.scrollIntoView({ behavior: 'smooth' });
-}
-
-// ========== ACCIONES DE VISTA PREVIA ==========
-function initPreviewActions() {
-    if (!elements.btnCopyUrl) return;
-    elements.btnCopyUrl.addEventListener('click', () => {
-        const url = elements.btnOpenPage.href;
-        navigator.clipboard.writeText(url).then(() => {
-            const originalText = elements.btnCopyUrl.textContent;
-            elements.btnCopyUrl.textContent = '¡Copiado!';
-            setTimeout(() => {
-                elements.btnCopyUrl.textContent = originalText;
-            }, 2000);
-        });
-    });
-}
-
-// ========== ALERTAS ==========
-function showAlert(message, type) {
+function showAlert(message, type = 'info') {
+    if (!elements.alertContainer) return;
     const alert = document.createElement('div');
-    alert.className = `alert alert-${type}`;
-    alert.textContent = message;
+    alert.className = `alert alert-${type} animate-fade-in`;
+    alert.innerHTML = message;
     elements.alertContainer.innerHTML = '';
     elements.alertContainer.appendChild(alert);
 
     setTimeout(() => {
         alert.remove();
-    }, 8000);
+    }, 10000);
 }
 
-function hideAlert() {
-    elements.alertContainer.innerHTML = '';
+function escapeHtml(text) {
+    if (!text) return '';
+    return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
 }

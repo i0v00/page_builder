@@ -13,6 +13,12 @@ function getMenuItems($pdo, $parentId = null) {
     return $stmt->fetchAll();
 }
 
+function getAllMenuItems($pdo) {
+    $stmt = $pdo->prepare("SELECT * FROM menu_items WHERE is_active = 1 ORDER BY sort_order ASC, name ASC");
+    $stmt->execute();
+    return $stmt->fetchAll();
+}
+
 function getMenuItemBySlug($pdo, $slug) {
     $stmt = $pdo->prepare("SELECT * FROM menu_items WHERE slug = ? AND is_active = 1 LIMIT 1");
     $stmt->execute([$slug]);
