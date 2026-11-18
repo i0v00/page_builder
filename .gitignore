@@ -1,0 +1,14 @@
+# Variables de entorno
+.env
+.env.*
+
+# Permitir plantilla de configuración
+!.env.example
+
+# Dependencias
+/vendor/
+/node_modules/
+
+# Archivos temporales
+*.log
+.DS_Store

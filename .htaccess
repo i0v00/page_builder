@@ -1,0 +1,51 @@
+# JDEconomy Academia - Configuración de Apache (Laragon)
+RewriteEngine On
+RewriteBase /jdeconomy/
+
+# Página de inicio
+RewriteRule ^$ index.php [L]
+RewriteRule ^index\.php$ - [L]
+
+# Panel de IA (AI Work)
+RewriteRule ^ai-work/?$ ai-work.php [L,NC]
+
+# CRUD de Menús
+RewriteRule ^menus/?$ menues.php [L,NC]
+
+# Páginas generadas por IA: /[menu]/[slug]/ (con menú padre)
+RewriteCond %{DOCUMENT_ROOT}/jdeconomy/generated/$1/$2/index.html -f
+RewriteRule ^([a-z0-9-]+)/([a-z0-9-]+)/?$ generated/$1/$2/index.html [L,NC]
+
+# Páginas generadas directas del sidebar: /[slug]/
+RewriteCond %{DOCUMENT_ROOT}/jdeconomy/generated/sidebar/$1/index.html -f
+RewriteRule ^([a-z0-9-]+)/?$ generated/sidebar/$1/index.html [L,NC]
+
+# Páginas de cursos: /[slug]/[subslug]/
+RewriteRule ^([a-z0-9-]+)/([a-z0-9-]+)/?$ course.php?slug=$1&subslug=$2 [L,QSA,NC]
+
+# Páginas de categoría: /[slug]/
+RewriteRule ^([a-z0-9-]+)/?$ category.php?slug=$1 [L,QSA,NC]
+
+# API endpoints
+RewriteRule ^api/(.*)$ api/index.php [L,QSA,NC]
+
+# Evitar acceso directo a archivos sensibles
+RewriteRule ^\.env - [F,NC]
+RewriteRule ^database/ - [F,NC]
+RewriteRule ^config/ - [F,NC]
+
+# Comprimir archivos estáticos
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript
+</IfModule>
+
+# Caché de archivos estáticos
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+</IfModule>
